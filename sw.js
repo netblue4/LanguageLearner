@@ -1,5 +1,10 @@
-/* Simple offline-first service worker for Language Learner. */
-const CACHE = 'langlearner-v1';
+/* Service worker for Language Learner.
+ *
+ * Network-first: when online we always fetch the latest file and refresh the
+ * cache, so updates show up on reload. We only fall back to the cache when the
+ * network fails (offline), which keeps the app usable on a ride with no signal.
+ * Bump CACHE whenever you want to guarantee old caches are evicted. */
+const CACHE = 'langlearner-v2';
 const ASSETS = [
   './',
   './index.html',
@@ -25,15 +30,22 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
+  const req = event.request;
+  if (req.method !== 'GET') return;
+  // Only manage our own origin; let anything else go straight to the network.
+  if (new URL(req.url).origin !== self.location.origin) return;
+
   event.respondWith(
-    caches.match(event.request).then((cached) =>
-      cached ||
-      fetch(event.request).then((res) => {
+    fetch(req)
+      .then((res) => {
+        // Cache a fresh copy for offline use.
         const copy = res.clone();
-        caches.open(CACHE).then((cache) => cache.put(event.request, copy)).catch(() => {});
+        caches.open(CACHE).then((cache) => cache.put(req, copy)).catch(() => {});
         return res;
-      }).catch(() => cached)
-    )
+      })
+      .catch(() =>
+        // Offline: serve the cached copy, falling back to the app shell.
+        caches.match(req).then((cached) => cached || caches.match('./index.html'))
+      )
   );
 });
