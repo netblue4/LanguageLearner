@@ -151,20 +151,80 @@ html, body {
 }
 .ctrl-btn.play:active { background: var(--accent-strong); }
 
+/* Options — spaced out with large touch targets for gloved fingers. */
 .options {
   display: grid;
-  gap: 12px;
-  justify-content: center;
+  gap: 16px;
+  margin-top: 8px;
 }
-.option {
+.option-row {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 18px;
+  min-height: 64px;
+}
+.option-label { font-size: 1.05rem; color: var(--text); }
+
+/* Toggle rows: label left, big checkbox right, whole row tappable. */
+.option-row.toggle {
   display: flex;
   align-items: center;
-  gap: 10px;
-  color: var(--muted);
-  font-size: .95rem;
+  justify-content: space-between;
+  gap: 16px;
   cursor: pointer;
 }
-.option input { width: 20px; height: 20px; accent-color: var(--accent); flex: none; }
+.option-row.toggle input[type="checkbox"] {
+  width: 32px;
+  height: 32px;
+  accent-color: var(--accent);
+  flex: none;
+}
+
+/* Speed row: heading + value on top, wide slider below. */
+.speed-row { display: grid; gap: 14px; align-content: center; }
+.speed-head { display: flex; align-items: baseline; justify-content: space-between; }
+.speed-head .val { color: var(--accent); font-weight: 700; font-size: 1.15rem; }
+
+#speedRange {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 36px;               /* tall hit area for gloves */
+  background: transparent;
+  cursor: pointer;
+}
+#speedRange::-webkit-slider-runnable-track {
+  height: 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+#speedRange::-moz-range-track {
+  height: 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+#speedRange::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 36px;
+  height: 36px;
+  margin-top: -14px;          /* centre the thumb on the track */
+  border-radius: 50%;
+  background: var(--accent);
+  border: 3px solid #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,.45);
+}
+#speedRange::-moz-range-thumb {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 3px solid #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,.45);
+}
 
 /* ---------- Toast ---------- */
 .toast {

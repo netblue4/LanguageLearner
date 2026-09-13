@@ -26,7 +26,9 @@ No build step, no dependencies, no server-side code. Just static files.
   German and French sentences are each repeated, for extra reps on the languages
   you're learning.
 - **"Loop topic"** toggle to repeat a topic continuously on a long ride.
-- Both toggles are remembered on your device between sessions.
+- **Speed slider** (0.5×–1.5×) to slow the speech down while you're learning.
+- Large, well-spaced controls sized for tapping with cycling gloves on.
+- The speed and both toggles are remembered on your device between sessions.
 - **OS media / Bluetooth headset controls** via the Media Session API.
 - **Installable PWA** with offline caching (service worker).
 - Keyboard shortcuts on desktop: **Space** = play/pause, **←/→** = prev/next.

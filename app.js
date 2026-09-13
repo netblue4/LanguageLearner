@@ -48,6 +48,7 @@ let itemIndex = 0;          // current phrase within topic
 let phaseIndex = 0;         // 0 = en, 1 = de, 2 = fr
 let isPlaying = false;      // are we actively running the sequence?
 let sessionStarted = false; // has the silent audio / media session started?
+let speechRate = 0.9;       // TTS rate, controlled by the speed slider
 
 let phaseTimer = null;      // timeout between languages / phrases
 let keepAlive = null;       // Chrome speechSynthesis keep-alive pump
@@ -176,7 +177,7 @@ function speakPhase(phase) {
     u.lang = phase.lang;
     const v = pickVoice(phase.lang.slice(0, 2));
     if (v) u.voice = v;
-    u.rate = 0.95;
+    u.rate = speechRate;
     u.pitch = 1.0;
     u.onstart = () => {
       highlight(phase.key);
@@ -399,8 +400,8 @@ document.addEventListener('keydown', (e) => {
   else if (e.code === 'ArrowLeft') previous();
 });
 
-/* Remember the option toggles between sessions (per-device convenience). */
-const OPTS = { repeat: 'll.repeatDeFr', loop: 'll.loopTopic' };
+/* Remember the option controls between sessions (per-device convenience). */
+const OPTS = { repeat: 'll.repeatDeFr', loop: 'll.loopTopic', speed: 'll.speed' };
 function restoreToggle(chk, key) {
   try { const v = localStorage.getItem(key); if (v !== null) chk.checked = v === '1'; } catch (e) {/* ignore */}
   chk.addEventListener('change', () => {
@@ -409,6 +410,21 @@ function restoreToggle(chk, key) {
 }
 restoreToggle(el('repeatChk'), OPTS.repeat);
 restoreToggle(el('loopChk'), OPTS.loop);
+
+/* Speed slider → TTS rate. Applies to the next spoken phrase immediately. */
+const speedRange = el('speedRange');
+const speedVal = el('speedVal');
+function applySpeed(v) {
+  speechRate = Math.min(1.5, Math.max(0.5, Number(v) || 0.9));
+  speedRange.value = String(speechRate);
+  speedVal.textContent = speechRate.toFixed(2) + '×';
+}
+try { const s = localStorage.getItem(OPTS.speed); applySpeed(s !== null ? s : speedRange.value); }
+catch (e) { applySpeed(speedRange.value); }
+speedRange.addEventListener('input', () => {
+  applySpeed(speedRange.value);
+  try { localStorage.setItem(OPTS.speed, String(speechRate)); } catch (e) {/* ignore */}
+});
 
 /* ================================================================== *
  * Helpers
