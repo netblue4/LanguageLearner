@@ -18,9 +18,15 @@ No build step, no dependencies, no server-side code. Just static files.
 - **Player screen** showing the English, German and French text, with the line
   currently being spoken highlighted.
 - **Play / Pause / Next / Previous** on-screen controls (big, glove-friendly targets).
+- **One sentence at a time**: each card is a single sentence, so you learn in
+  small chunks rather than a whole paragraph at once.
 - **Multi-language TTS queue**: English (`en-US`) → 1 s pause → German (`de-DE`)
-  → 1 s pause → French (`fr-FR`) → 2 s pause → auto-advance to the next phrase.
+  → 1 s pause → French (`fr-FR`) → 2 s pause → auto-advance to the next sentence.
+- **"Repeat German & French twice"** toggle: English is spoken once, then the
+  German and French sentences are each repeated, for extra reps on the languages
+  you're learning.
 - **"Loop topic"** toggle to repeat a topic continuously on a long ride.
+- Both toggles are remembered on your device between sessions.
 - **OS media / Bluetooth headset controls** via the Media Session API.
 - **Installable PWA** with offline caching (service worker).
 - Keyboard shortcuts on desktop: **Space** = play/pause, **←/→** = prev/next.

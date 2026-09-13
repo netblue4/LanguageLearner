@@ -52,14 +52,27 @@ let sessionStarted = false; // has the silent audio / media session started?
 let phaseTimer = null;      // timeout between languages / phrases
 let keepAlive = null;       // Chrome speechSynthesis keep-alive pump
 
-/* Each phase: which language, which text field, and how long to pause after. */
+/* Build the phase list for the current sentence.
+ * Default: English -> German -> French (each once).
+ * When "Repeat German & French twice" is ticked: English once, then German
+ * twice and French twice, so the target-language sentences get extra reps. */
 function phasesForCurrentItem() {
   const item = items[itemIndex];
-  return [
+  const repeat = el('repeatChk').checked;
+  const phases = [
     { key: 'en', lang: 'en-US', text: item.english, pauseAfter: PAUSE_AFTER_EN },
     { key: 'de', lang: 'de-DE', text: item.german,  pauseAfter: PAUSE_AFTER_DE },
-    { key: 'fr', lang: 'fr-FR', text: item.french,  pauseAfter: PAUSE_AFTER_FR },
   ];
+  if (repeat) {
+    phases.push({ key: 'de', lang: 'de-DE', text: item.german, pauseAfter: PAUSE_AFTER_DE, again: true });
+  }
+  // First French: short pause before its repeat when repeating, else the normal
+  // end-of-sentence pause before auto-advancing.
+  phases.push({ key: 'fr', lang: 'fr-FR', text: item.french, pauseAfter: repeat ? PAUSE_AFTER_DE : PAUSE_AFTER_FR });
+  if (repeat) {
+    phases.push({ key: 'fr', lang: 'fr-FR', text: item.french, pauseAfter: PAUSE_AFTER_FR, again: true });
+  }
+  return phases;
 }
 
 /* ================================================================== *
@@ -165,7 +178,10 @@ function speakPhase(phase) {
     if (v) u.voice = v;
     u.rate = 0.95;
     u.pitch = 1.0;
-    u.onstart = () => { highlight(phase.key); statusEl.textContent = `Speaking ${labelFor(phase.key)}…`; };
+    u.onstart = () => {
+      highlight(phase.key);
+      statusEl.textContent = `Speaking ${labelFor(phase.key)}${phase.again ? ' again' : ''}…`;
+    };
     u.onend = () => resolve();
     u.onerror = () => resolve(); // never wedge the queue on an engine error
     synth.speak(u);
@@ -180,6 +196,9 @@ function labelFor(key) {
 async function runFromCurrentPhase() {
   if (!isPlaying) return;
   const phases = phasesForCurrentItem();
+  // Guard against the phase count shrinking mid-sentence (e.g. the repeat
+  // option is toggled off while a repeated phase is queued).
+  if (phaseIndex >= phases.length) { advanceToNextItem(); return; }
   const phase = phases[phaseIndex];
 
   await speakPhase(phase);
@@ -379,6 +398,17 @@ document.addEventListener('keydown', (e) => {
   else if (e.code === 'ArrowRight') next();
   else if (e.code === 'ArrowLeft') previous();
 });
+
+/* Remember the option toggles between sessions (per-device convenience). */
+const OPTS = { repeat: 'll.repeatDeFr', loop: 'll.loopTopic' };
+function restoreToggle(chk, key) {
+  try { const v = localStorage.getItem(key); if (v !== null) chk.checked = v === '1'; } catch (e) {/* ignore */}
+  chk.addEventListener('change', () => {
+    try { localStorage.setItem(key, chk.checked ? '1' : '0'); } catch (e) {/* ignore */}
+  });
+}
+restoreToggle(el('repeatChk'), OPTS.repeat);
+restoreToggle(el('loopChk'), OPTS.loop);
 
 /* ================================================================== *
  * Helpers

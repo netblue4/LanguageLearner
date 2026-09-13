@@ -151,15 +151,20 @@ html, body {
 }
 .ctrl-btn.play:active { background: var(--accent-strong); }
 
-.autoloop {
+.options {
+  display: grid;
+  gap: 12px;
+  justify-content: center;
+}
+.option {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
+  gap: 10px;
   color: var(--muted);
   font-size: .95rem;
+  cursor: pointer;
 }
-.autoloop input { width: 18px; height: 18px; accent-color: var(--accent); }
+.option input { width: 20px; height: 20px; accent-color: var(--accent); flex: none; }
 
 /* ---------- Toast ---------- */
 .toast {
